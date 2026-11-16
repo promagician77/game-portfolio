@@ -1143,9 +1143,12 @@ html:not([data-mode='war']) .compass { opacity: 0; }
 .tl-item__card h3 { font-size: 26px; text-transform: uppercase; line-height: 1.05; }
 .tl-item__company { margin: 4px 0 10px; font-family: var(--font-hud); font-size: 13px; letter-spacing: 0.08em; color: var(--accent); }
 .tl-item__card p:last-child { color: var(--muted); font-size: 15px; }
+<<<<<<< HEAD
 .tl-item__list { display: grid; gap: 8px; margin: 14px 0 0; padding: 0; list-style: none; }
 .tl-item__list li { position: relative; padding-left: 20px; color: var(--muted); font-size: 15px; line-height: 1.55; }
 .tl-item__list li::before { content: ''; position: absolute; left: 2px; top: 0.6em; width: 6px; height: 6px; rotate: 45deg; background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+=======
+>>>>>>> origin/main
 
 /* =========================================================
    Comms
