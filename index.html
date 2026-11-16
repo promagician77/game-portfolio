@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en" class="is-loading" data-mode="war">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marcus McNeal — Senior Game Engineer · Gameplay &amp; Online Systems</title>
+  <meta name="description" content="Marcus McNeal, Senior Game Engineer building gameplay systems in Unity and Unreal, and the multiplayer backends behind them: authoritative servers, netcode, matchmaking and live ops." />
+  <meta name="theme-color" content="#07080a" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://images.unsplash.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600&family=Inter:wght@400;500;600&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- ===== Logo: Vanguard Crest (MM monogram) — reused via <use href="#logo-crest"> ===== -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="crest-grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color: var(--accent-2)"/><stop offset="1" style="stop-color: var(--accent)"/></linearGradient>
+    </defs>
+    <symbol id="logo-crest" viewBox="0 0 64 64">
+      <path d="M32 3 57 11v21c0 15-10.5 24.5-25 29C17.5 56.5 7 47 7 32V11z" fill="#0d0f12" stroke="url(#crest-grad)" stroke-width="3"/>
+      <path d="M32 9.5 51 15.5v16c0 11.5-7.8 19-19 22.8" fill="none" stroke="url(#crest-grad)" stroke-width="1.2" opacity=".5"/>
+      <path d="M18 41V21l7 10 7-10 7 10 7-10v20M32 21v20" fill="none" stroke="url(#crest-grad)" stroke-width="4.5" stroke-linejoin="bevel"/>
+      <path d="M23 50l9-4.5 9 4.5" fill="none" stroke="url(#crest-grad)" stroke-width="3"/>
+    </symbol>
+  </svg>
+
+  <!-- ===== Loader: game-client deploy screen ===== -->
+  <div class="loader" id="preloader" aria-hidden="true">
+    <div class="loader__art">
+      <div class="loader__art-img is-active" style="background-image:url(/img/hero-war.jpg)"></div>
+      <div class="loader__art-img" style="background-image:url(/img/theater-armor.jpg)"></div>
+      <div class="loader__art-img" style="background-image:url(/img/genre-war.jpg)"></div>
+    </div>
+    <div class="loader__door loader__door--l"></div>
+    <div class="loader__door loader__door--r"></div>
+    <svg class="loader__seam" viewBox="0 0 100 100" preserveAspectRatio="none"><line x1="58" y1="0" x2="42" y2="100" /></svg>
+
+    <div class="loader__ui">
+      <header class="loader__top">
+        <div class="loader__brand"><svg class="logo-mark logo-mark--sm"><use href="#logo-crest"/></svg>McNeal <em>// Game client</em> <small>v4.2.0</small></div>
+        <div class="loader__status">
+          <span><i class="dot dot--ok"></i>EU-WEST-1 online</span>
+          <span>Ping <b id="ld-ping">--</b>ms</span>
+          <span>FPS <b id="ld-fps">--</b></span>
+        </div>
+      </header>
+
+      <div class="loader__emblem">
+        <div class="gyro">
+          <div class="gyro__ring gyro__ring--1"></div>
+          <div class="gyro__ring gyro__ring--2"></div>
+          <div class="gyro__ring gyro__ring--3"></div>
+          <div class="gyro__sweep"></div>
+          <div class="gyro__core">
+            <svg viewBox="0 0 64 64"><use href="#logo-crest"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="loader__main">
+        <p class="loader__kicker"><span class="dot dot--live"></span>Now deploying</p>
+        <h2 class="loader__title">Operation: <span>Nexus</span></h2>
+        <p class="loader__sub">Marcus McNeal · Senior Game Engineer — Gameplay &amp; Online Systems</p>
+        <div class="loader__bar">
+          <div class="loader__track"><div class="loader__fill" id="ld-fill"></div></div>
+          <span class="loader__edge" id="ld-edge"></span>
+          <div class="loader__sparks" id="ld-sparks"></div>
+        </div>
+        <div class="loader__row">
+          <span class="loader__stage" id="ld-stage">Establishing uplink</span>
+          <span class="loader__pct"><b id="preloader-count">000</b>%</span>
+        </div>
+      </div>
+
+      <ul class="loader__list" id="ld-list">
+        <li data-at="0">Establishing uplink</li>
+        <li data-at="16">Authenticating operator</li>
+        <li data-at="34">Equipping loadout</li>
+        <li data-at="52">Streaming map: Sector 7</li>
+        <li data-at="70">Syncing server tick · 64 Hz</li>
+        <li data-at="86">Assembling squad</li>
+      </ul>
+
+      <footer class="loader__bottom">
+        <p class="loader__tip"><b>Intel</b><span id="ld-tip">Never trust the client.</span></p>
+        <p class="loader__press" id="ld-press"><kbd>Any key</kbd> Deploy</p>
+      </footer>
+    </div>
+    <div class="loader__flash"></div>
+  </div>
+
+  <!-- ===== Fixed layers ===== -->
+  <div class="backdrop" aria-hidden="true">
+    <div class="backdrop__imgs">
+      <div class="backdrop__img is-active" data-mode="war" style="background-image:url(/img/hero-war.jpg)"></div>
+    </div>
+    <div class="backdrop__tint"></div>
+    <div class="backdrop__grade"></div>
+    <div class="backdrop__flash"></div>
+    <div class="backdrop__dim"></div>
+  </div>
+  <canvas id="webgl" aria-hidden="true"></canvas>
+  <div class="bg-fallback" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="vignette-pulse" aria-hidden="true"></div>
+  <div class="hud-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <div class="screen-fx" aria-hidden="true">
+    <div class="screen-fx__burn"></div>
+    <div class="screen-fx__blink"></div>
+  </div>
+  <div class="scroll-progress" aria-hidden="true"><span id="scroll-progress"></span></div>
+  <div class="cursor" aria-hidden="true">
+    <div class="cursor__dot"></div>
+    <div class="cursor__ring"><i></i><i></i><i></i><i></i><span class="cursor__label">View</span></div>
+  </div>
+
+  <!-- ===== Nav: game-client top bar ===== -->
+  <header class="nav" id="nav">
+    <a href="#home" class="nav__logo magnetic" data-cursor>
+      <svg class="logo-mark"><use href="#logo-crest"/></svg>
+      <span class="logo-word"><b>McNeal</b><small>Senior Game Engineer</small></span>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="#about" data-cursor>Profile</a>
+      <a href="#theaters" data-cursor>Theaters</a>
+      <a href="#skillboard" data-cursor>Skills</a>
+      <a href="#work" data-cursor>Missions</a>
+      <a href="#experience" data-cursor>Record</a>
+    </nav>
+    <div class="nav__right">
+      <div class="player">
+        <span class="player__avatar">MM</span>
+        <span class="player__info">
+          <b>Marcus McNeal</b>
+          <small>LVL 87 · Senior engineer</small>
+          <span class="player__xp"><i></i></span>
+        </span>
+      </div>
+      <a href="#contact" class="btn btn--small magnetic" data-cursor><span>Join squad</span></a>
+    </div>
+    <button class="nav__burger" id="burger" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
+  </header>
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#about">Profile</a><a href="#theaters">Theaters</a><a href="#process">Briefing</a><a href="#skills">Loadout</a><a href="#skillboard">Skills</a><a href="#work">Missions</a><a href="#experience">Record</a><a href="#contact">Comms</a>
+  </div>
+
+  <main>
+    <!-- ===== Hero ===== -->
+    <section class="hero" id="home">
+      <div class="compass" aria-hidden="true">
+        <div class="compass__window"><div class="compass__strip" id="compass"></div></div>
+        <span class="compass__needle"></span>
+        <b class="compass__deg" id="compass-deg">180</b>
+      </div>
+
+      <div class="container hero__grid">
+        <div class="hero__content">
+          <div class="hero__meta" data-hero>
+            <span class="tag"><span class="dot dot--ok"></span>Online — open to senior roles</span>
+            <span class="hero__mode-label">War games division <i>//</i> Frontline</span>
+          </div>
+          <h1 class="hero__title" id="hero-title" aria-label="Marcus McNeal">
+            <span class="hero__first">Marcus</span>
+            <span class="hero__last">McNeal</span>
+          </h1>
+          <p class="hero__role" data-hero>Senior Game Engineer <i></i> Gameplay &amp; Online Systems</p>
+          <p class="hero__tagline" data-hero id="mode-tagline">Engineering the frontline at 64 tick.</p>
+          <p class="hero__lead" data-hero id="mode-lead">Large-scale multiplayer combat: authoritative servers, lag-compensated hit registration, and vehicle and destruction replication for 128-player battles.</p>
+          <div class="hero__stats" data-hero><div><b>128</b><span>Players / server</span></div><div><b>3.9ms</b><span>p99 tick</span></div><div><b>0.02%</b><span>Desync rate</span></div></div>
+          <div class="hero__ctas" data-hero>
+            <a href="#work" class="btn magnetic" data-cursor><span>View missions</span><kbd>↵</kbd></a>
+            <a href="#theaters" class="btn btn--ghost magnetic" data-cursor><span>Theaters of war</span></a>
+          </div>
+        </div>
+
+        <aside class="killfeed" data-hero aria-label="Example in-game kill feed of engineering wins">
+          <div class="killfeed__match">
+            <span class="dot dot--live"></span>
+            <b id="kf-title">Match 7F3A</b>
+            <em id="kf-sub">EU-West · 64 tick · Conquest</em>
+          </div>
+          <ul class="killfeed__list" id="feed"></ul>
+        </aside>
+      </div>
+
+      <a href="#about" class="scroll-cue container" data-hero data-cursor>
+        <span class="scroll-cue__mouse"><i></i></span>
+        <span>Scroll to advance</span>
+      </a>
+    </section>
+
+    <!-- ===== Ticker ===== -->
+    <section class="marquee" aria-label="Technologies">
+      <span class="marquee__label">Arsenal</span>
+      <div class="marquee__viewport">
+        <div class="marquee__track" id="marquee">
+          <div class="marquee__group">
+            <span>C++</span><i></i><span>C#</span><i></i><span>Unreal Engine</span><i></i><span>Unity</span><i></i><span>Godot</span><i></i><span>Go</span><i></i><span>Rust</span><i></i><span>UDP / ENet</span><i></i><span>Agones</span><i></i><span>Kubernetes</span><i></i><span>Redis</span><i></i><span>PostgreSQL</span><i></i><span>Kafka</span><i></i><span>gRPC</span><i></i>
+          </div>
+          <div class="marquee__group" aria-hidden="true">
+            <span>C++</span><i></i><span>C#</span><i></i><span>Unreal Engine</span><i></i><span>Unity</span><i></i><span>Godot</span><i></i><span>Go</span><i></i><span>Rust</span><i></i><span>UDP / ENet</span><i></i><span>Agones</span><i></i><span>Kubernetes</span><i></i><span>Redis</span><i></i><span>PostgreSQL</span><i></i><span>Kafka</span><i></i><span>gRPC</span><i></i>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Profile ===== -->
+    <section class="section about" id="about">
+      <div class="container about__grid">
+        <div class="about__media">
+          <div class="about__image" id="about-image">
+            <img src="https://images.unsplash.com/photo-1534423861386-85a16f5d13fd?w=1200&q=80&auto=format&fit=crop" alt="Player wearing a headset in front of a glowing monitor" loading="lazy" />
+            <div class="about__scan"></div>
+            <div class="about__reticle"></div>
+            <span class="hud-tag hud-tag--tl">ID // MM-087</span>
+            <span class="hud-tag hud-tag--br"><i class="dot dot--ok"></i>Status: active</span>
+          </div>
+          <div class="about__badge panel">
+            <span>Current op</span>
+            <strong>Shipping multiplayer worlds</strong>
+          </div>
+        </div>
+        <div class="about__content">
+          <p class="eyebrow"><b>01</b>Operator profile</p>
+          <h2 class="section-title" data-split>I build the game, then the servers that keep it alive.</h2>
+          <p data-reveal>
+            I started out writing gameplay code, chasing the perfect recoil curve and the frame where a hit
+            feels right. Then I followed the packets: how does that hit feel just as good at 120&nbsp;ms of
+            latency, with a hundred thousand players online and someone trying to cheat?
+          </p>
+          <p data-reveal>
+            Today I fight on both sides of the wire: gameplay and engine work in Unity and Unreal, and the
+            backend that makes it multiplayer — dedicated servers, netcode, matchmaking, progression,
+            economies, and the telemetry that tells us whether players are having fun.
+          </p>
+          <p class="record-title" data-reveal>Combat record</p>
+          <div class="stats">
+            <div class="stat" data-reveal><strong><span data-count="8">0</span>+</strong><span>Years making games</span></div>
+            <div class="stat" data-reveal><strong><span data-count="12">0</span></strong><span>Titles shipped</span></div>
+            <div class="stat" data-reveal><strong><span data-count="3">0</span>M+</strong><span>Monthly active players</span></div>
+            <div class="stat" data-reveal><strong><span data-count="40">0</span>%</strong><span>Lower server costs</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Theaters of war: character-select ===== -->
+    <section class="section genres" id="theaters">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow"><b>02</b>Theaters of war</p>
+          <h2 class="section-title" data-split>Every front of a modern war game.</h2>
+        </div>
+        <div class="genre-select">
+          <article class="genre genre--infantry is-open" data-cursor>
+            <img src="/img/theater-infantry.jpg" alt="Soldier in tactical gear holding a rifle, in black and white" loading="lazy" />
+            <div class="genre__body">
+              <span class="genre__num">01 · Infantry</span>
+              <h3 class="genre__name">Infantry</h3>
+              <div class="genre__more"><div>
+              <p class="genre__engine">Gunplay &amp; hit registration · UE5 C++</p>
+              <ul class="genre__list">
+                <li>Recoil, spread &amp; ballistic projectile simulation</li>
+                <li>Server-side, lag-compensated hit validation</li>
+                <li>Damage model, hit markers &amp; kill feed at 64 Hz</li>
+                <li>Weapon &amp; attachment frameworks for designers</li>
+              </ul>
+              <div class="genre__stats"><div><b>3.9ms</b><span>p99 tick</span></div><div><b>87ms</b><span>Max rewind</span></div></div>
+              <a class="genre__cta" href="#work">View missions <span>→</span></a>
+              </div></div>
+            </div>
+          </article>
+          <article class="genre genre--armor" data-cursor>
+            <img src="/img/theater-armor.jpg" alt="Battle tank firing a round with a burst of flame" loading="lazy" />
+            <div class="genre__body">
+              <span class="genre__num">02 · Armor</span>
+              <h3 class="genre__name">Armor</h3>
+              <div class="genre__more"><div>
+              <p class="genre__engine">Vehicles &amp; destruction · Chaos physics</p>
+              <ul class="genre__list">
+                <li>Networked vehicle physics with client prediction</li>
+                <li>Replicated destruction within debris budgets</li>
+                <li>Shell ballistics, armor &amp; penetration</li>
+                <li>Seats, turrets &amp; multi-crew control</li>
+              </ul>
+              <div class="genre__stats"><div><b>40</b><span>Vehicles / match</span></div><div><b>2.1KB/s</b><span>Per vehicle</span></div></div>
+              <a class="genre__cta" href="#work">View missions <span>→</span></a>
+              </div></div>
+            </div>
+          </article>
+          <article class="genre genre--command" data-cursor>
+            <img src="/img/theater-command.jpg" alt="Military helicopter hovering above soldiers in a field" loading="lazy" />
+            <div class="genre__body">
+              <span class="genre__num">03 · Command</span>
+              <h3 class="genre__name">Command</h3>
+              <div class="genre__more"><div>
+              <p class="genre__engine">Large-scale battles · Dedicated servers</p>
+              <ul class="genre__list">
+                <li>128-player relevancy &amp; interest management</li>
+                <li>Squads, spawns, objectives &amp; tickets</li>
+                <li>Regional server fleets &amp; autoscaling</li>
+                <li>Matchmaking, parties &amp; backfill</li>
+              </ul>
+              <div class="genre__stats"><div><b>128</b><span>Players</span></div><div><b>9</b><span>Regions</span></div></div>
+              <a class="genre__cta" href="#work">View missions <span>→</span></a>
+              </div></div>
+            </div>
+          </article>
+        </div>
+
+        <div class="engines">
+          <p class="record-title">Engine experience</p>
+          <div class="engines__grid">
+            <div class="engine" data-reveal><b>Unreal Engine 5</b><span>C++ · GAS · Replication · Chaos</span><div class="mastery__bar"><i data-bar="96"></i></div></div>
+            <div class="engine" data-reveal><b>Unity</b><span>C# · DOTS · Netcode · HDRP</span><div class="mastery__bar"><i data-bar="92"></i></div></div>
+            <div class="engine" data-reveal><b>Custom C++</b><span>ECS · Deterministic sim · Rendering</span><div class="mastery__bar"><i data-bar="88"></i></div></div>
+            <div class="engine" data-reveal><b>Godot</b><span>GDScript · C# · High-level multiplayer</span><div class="mastery__bar"><i data-bar="74"></i></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Briefing / Pipeline ===== -->
+    <section class="section process" id="process">
+      <div class="process__pin">
+        <div class="container">
+          <div class="section-head">
+            <p class="eyebrow"><b>03</b>Mission briefing</p>
+            <h2 class="section-title" data-split>Anatomy of a multiplayer match.</h2>
+          </div>
+          <div class="pipeline-scroll">
+            <div class="pipeline" id="pipeline">
+              <svg class="pipeline__svg" viewBox="0 0 1200 300" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                  <linearGradient id="pipe-grad" x1="0" x2="1" y1="0" y2="0">
+                    <stop offset="0" stop-color="#ffb02e" />
+                    <stop offset="1" stop-color="#ff4d00" />
+                  </linearGradient>
+                </defs>
+                <path class="pipeline__track" d="M100 160 C200 160 200 90 300 90 C400 90 400 210 500 210 C600 210 600 90 700 90 C800 90 800 210 900 210 C1000 210 1000 160 1100 160" />
+                <path class="pipeline__path" id="pipe-path" d="M100 160 C200 160 200 90 300 90 C400 90 400 210 500 210 C600 210 600 90 700 90 C800 90 800 210 900 210 C1000 210 1000 160 1100 160" />
+              </svg>
+              <div class="pipeline__packets" id="packets"></div>
+              <div class="pnode" style="--x:8.333%; --y:53.33%"><div class="pnode__icon"><svg viewBox="0 0 24 24"><path d="M6 11h4M8 9v4"/><path d="M15 12h.01M18 10h.01"/><path d="M17.3 5H6.7a4 4 0 0 0-3.9 3.4L2 15a3 3 0 0 0 5.2 2.4L9 15h6l1.8 2.4A3 3 0 0 0 22 15l-.8-6.6A4 4 0 0 0 17.3 5z"/></svg></div><span><em>WP-01</em>Player</span></div>
+              <div class="pnode" style="--x:25%; --y:30%"><div class="pnode__icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.5a5 5 0 0 1 5 5.5"/></svg></div><span><em>WP-02</em>Matchmake</span></div>
+              <div class="pnode" style="--x:41.667%; --y:70%"><div class="pnode__icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="7" rx="1.5"/><rect x="3" y="14" width="18" height="7" rx="1.5"/><path d="M7 6.5h.01M7 17.5h.01"/></svg></div><span><em>WP-03</em>Allocate</span></div>
+              <div class="pnode" style="--x:58.333%; --y:30%"><div class="pnode__icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg></div><span><em>WP-04</em>Simulate</span></div>
+              <div class="pnode" style="--x:75%; --y:70%"><div class="pnode__icon"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5.3L20 9"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-14 5.3L4 15"/><path d="M4 20v-5h5"/></svg></div><span><em>WP-05</em>Replicate</span></div>
+              <div class="pnode" style="--x:91.667%; --y:53.33%"><div class="pnode__icon"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></div><span><em>WP-06</em>Persist</span></div>
+            </div>
+          </div>
+          <div class="steps">
+            <div class="step"><span>Obj 01</span><h3>Skill-based matchmaking</h3><p>MMR, parties and latency-aware region selection put fair matches together fast.</p></div>
+            <div class="step"><span>Obj 02</span><h3>Fleet allocation</h3><p>Dedicated servers allocated from warm, autoscaled fleets in under two seconds.</p></div>
+            <div class="step"><span>Obj 03</span><h3>Authoritative sim</h3><p>Fixed-tick server simulation is the source of truth and validates every input.</p></div>
+            <div class="step"><span>Obj 04</span><h3>Netcode</h3><p>Delta-compressed snapshots, client prediction, lag compensation and rollback.</p></div>
+            <div class="step"><span>Obj 05</span><h3>Persist &amp; reward</h3><p>Results, MMR, inventory and rewards committed exactly once; events to analytics.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Loadout ===== -->
+    <section class="section skills" id="skills">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow"><b>04</b>Loadout</p>
+          <h2 class="section-title" data-split>Equipped from the game loop to the server fleet.</h2>
+        </div>
+        <div class="cards">
+          <article class="card tilt rarity-legendary" data-reveal>
+            <div class="card__glow"></div>
+            <div class="card__head"><span>Slot 01 · Primary</span><span class="rarity">Legendary</span></div>
+            <div class="card__icon"><svg viewBox="0 0 24 24"><path d="M2 8.5a15 15 0 0 1 20 0M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1"/></svg></div>
+            <h3>Multiplayer Netcode</h3>
+            <p>Client prediction, server reconciliation, lag compensation, rollback and interest management over custom UDP transports.</p>
+            <div class="mastery"><span>Mastery</span><div class="mastery__bar"><i data-bar="96"></i></div><b>96</b></div>
+            <ul class="tags"><li>UDP</li><li>Rollback</li><li>Prediction</li><li>Snapshots</li></ul>
+          </article>
+          <article class="card tilt rarity-legendary" data-reveal>
+            <div class="card__glow"></div>
+            <div class="card__head"><span>Slot 02 · Primary</span><span class="rarity">Legendary</span></div>
+            <div class="card__icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="6" rx="1.5"/><rect x="2" y="15" width="20" height="6" rx="1.5"/><path d="M6 6h.01M6 18h.01M12 9v6"/></svg></div>
+            <h3>Game Servers &amp; Fleets</h3>
+            <p>Headless dedicated servers, fleet orchestration and autoscaling across regions, with zero-downtime rollouts between matches.</p>
+            <div class="mastery"><span>Mastery</span><div class="mastery__bar"><i data-bar="94"></i></div><b>94</b></div>
+            <ul class="tags"><li>Agones</li><li>Kubernetes</li><li>GameLift</li><li>Docker</li></ul>
+          </article>
+          <article class="card tilt rarity-epic" data-reveal>
+            <div class="card__glow"></div>
+            <div class="card__head"><span>Slot 03 · Secondary</span><span class="rarity">Epic</span></div>
+            <div class="card__icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.5a5 5 0 0 1 5 5.5"/></svg></div>
+            <h3>Matchmaking &amp; Social</h3>
+            <p>Skill rating (Elo / Glicko / TrueSkill-style), parties, lobbies, presence, chat and friends at millions of concurrent users.</p>
+            <div class="mastery"><span>Mastery</span><div class="mastery__bar"><i data-bar="90"></i></div><b>90</b></div>
+            <ul class="tags"><li>Open Match</li><li>Redis</li><li>WebSockets</li><li>Go</li></ul>
+          </article>
+          <article class="card tilt rarity-legendary" data-reveal>
+            <div class="card__glow"></div>
+            <div class="card__head"><span>Slot 04 · Primary</span><span class="rarity">Legendary</span></div>
+            <div class="card__icon"><svg viewBox="0 0 24 24"><path d="M6 11h4M8 9v4"/><path d="M15 12h.01M18 10h.01"/><path d="M17.3 5H6.7a4 4 0 0 0-3.9 3.4L2 15a3 3 0 0 0 5.2 2.4L9 15h6l1.8 2.4A3 3 0 0 0 22 15l-.8-6.6A4 4 0 0 0 17.3 5z"/></svg></div>
+            <h3>Gameplay Engineering</h3>
+            <p>Combat systems, AI behaviours, physics, cameras and designer-friendly tools that keep the game feeling great at 60+ fps.</p>
+            <div class="mastery"><span>Mastery</span><div class="mastery__bar"><i data-bar="93"></i></div><b>93</b></div>
+            <ul class="tags"><li>Unreal C++</li><li>Unity C#</li><li>Godot</li><li>HLSL</li></ul>
+          </article>
+          <article class="card tilt rarity-epic" data-reveal>
+            <div class="card__glow"></div>
+            <div class="card__head"><span>Slot 05 · Secondary</span><span class="rarity">Epic</span></div>
+            <div class="card__icon"><svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg></div>
+            <h3>Live Ops &amp; Economy</h3>
+            <p>Inventories, stores, battle passes, seasonal events and leaderboards, with idempotent rewards and anti-fraud built in.</p>
+            <div class="mastery"><span>Mastery</span><div class="mastery__bar"><i data-bar="88"></i></div><b>88</b></div>
+            <ul class="tags"><li>Postgres</li><li>Kafka</li><li>Feature flags</li><li>A/B tests</li></ul>
+          </article>
+          <article class="card tilt rarity-rare" data-reveal>
+            <div class="card__glow"></div>
+            <div class="card__head"><span>Slot 06 · Tactical</span><span class="rarity">Rare</span></div>
+            <div class="card__icon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 6-7"/></svg></div>
+            <h3>Performance &amp; Telemetry</h3>
+            <p>Tick budgets, profiling, crash triage and gameplay analytics pipelines, so balancing decisions are made with data.</p>
+            <div class="mastery"><span>Mastery</span><div class="mastery__bar"><i data-bar="85"></i></div><b>85</b></div>
+            <ul class="tags"><li>Rust</li><li>ClickHouse</li><li>Prometheus</li><li>Profilers</li></ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Skill board ===== -->
+    <section class="section skillboard" id="skillboard">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow"><b>05</b>Skill board</p>
+          <h2 class="section-title" data-split>The full stat sheet.</h2>
+        </div>
+        <div class="board">
+          <aside class="board__card" data-reveal>
+            <div class="board__top">
+              <div class="board__ovr"><b data-count="94">0</b><span>OVR</span></div>
+              <div class="board__id">
+                <strong>Marcus McNeal</strong>
+                <span>Senior Game Engineer</span>
+                <em>Gameplay &amp; Online Systems</em>
+              </div>
+            </div>
+            <svg class="radar" id="radar" viewBox="0 0 300 300" role="img" aria-label="Attribute radar: Gameplay 92, Netcode 98, Backend 93, Engines 95, Graphics 80, Tools 88"></svg>
+            <ul class="board__attrs" id="board-attrs"></ul>
+            <div class="board__badges">
+              <span>10+ yrs C++</span><span>12 titles</span><span>128-player servers</span><span>3M+ MAU</span>
+            </div>
+          </aside>
+          <div class="board__main" data-reveal>
+            <div class="board__tabs" id="board-tabs" role="tablist" aria-label="Skill categories"></div>
+            <div class="board__head"><span>Rank</span><span>Skill</span><span>Level</span><span></span><span>Exp</span></div>
+            <div class="board__list" id="board-list" role="tabpanel"></div>
+            <div class="board__legend">
+              <span><i class="grade grade--s">S</i>Expert · leads it</span>
+              <span><i class="grade grade--a">A</i>Advanced · ships it</span>
+              <span><i class="grade grade--b">B</i>Proficient</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Missions (horizontal scroll) ===== -->
+    <section class="work" id="work">
+      <div class="work__pin">
+        <div class="container work__head">
+          <div>
+            <p class="eyebrow"><b>06</b>Missions</p>
+            <h2 class="section-title" data-split>Completed missions.</h2>
+          </div>
+          <p class="work__hint">Scroll <span>→</span></p>
+        </div>
+        <div class="work__track" id="work-track">
+          <article class="project project--war" data-cursor="view">
+            <div class="project__media"><img src="/img/mission-war.jpg" alt="Soldier with a rifle in orange smoke at night" loading="lazy" /><span class="project__status">✓ Mission complete</span><span class="project__genre">Combined arms</span></div>
+            <div class="project__body">
+              <div class="project__meta"><span>Mission 01</span><span>Combined arms</span></div>
+              <h3>Ironfront — 128-Player Combined Arms</h3>
+              <p>Authoritative 64 Hz servers, lag compensation and objective systems for large-scale infantry and vehicle battles.</p>
+              <div class="project__kpis"><div><strong>3.9ms</strong><span>p99 tick time</span></div><div><strong>0.02%</strong><span>desync rate</span></div></div>
+              <ul class="tags"><li>UE5</li><li>C++</li><li>Agones</li><li>UDP</li></ul>
+            </div>
+          </article>
+          <article class="project project--war" data-cursor="view">
+            <div class="project__media"><img src="/img/mission-blackridge.jpg" alt="Armed operator in tactical gear in a dark room" loading="lazy" /><span class="project__status">✓ Mission complete</span><span class="project__genre">Extraction</span></div>
+            <div class="project__body">
+              <div class="project__meta"><span>Mission 02</span><span>Extraction</span></div>
+              <h3>Black Ridge — Tactical Extraction Shooter</h3>
+              <p>Squad-based PvPvE raids: authoritative inventory, persistent loadouts and anti-cheat-hardened servers.</p>
+              <div class="project__kpis"><div><strong>0</strong><span>dupe exploits</span></div><div><strong>99.98%</strong><span>raid uptime</span></div></div>
+              <ul class="tags"><li>UE5</li><li>C++</li><li>Go</li><li>Redis</li></ul>
+            </div>
+          </article>
+          <article class="project project--war" data-cursor="view">
+            <div class="project__media"><img src="/img/mission-steelrain.jpg" alt="Tank standing in a foggy field" loading="lazy" /><span class="project__status">✓ Mission complete</span><span class="project__genre">Armored warfare</span></div>
+            <div class="project__body">
+              <div class="project__meta"><span>Mission 03</span><span>Armored warfare</span></div>
+              <h3>Steel Rain — Tank Combat</h3>
+              <p>Networked tank physics, shell ballistics and replicated destruction for 40-vehicle battles.</p>
+              <div class="project__kpis"><div><strong>40</strong><span>vehicles / match</span></div><div><strong>2.1KB/s</strong><span>per vehicle</span></div></div>
+              <ul class="tags"><li>C++</li><li>Chaos</li><li>Prediction</li><li>UDP</li></ul>
+            </div>
+          </article>
+          <article class="project project--war" data-cursor="view">
+            <div class="project__media"><img src="/img/mission-pulse.jpg" alt="Squad deploying from helicopters in a field" loading="lazy" /><span class="project__status">✓ Mission complete</span><span class="project__genre">Online platform</span></div>
+            <div class="project__body">
+              <div class="project__meta"><span>Mission 04</span><span>Online platform</span></div>
+              <h3>Pulse — Global Matchmaking</h3>
+              <p>Skill- and latency-aware matchmaking across 9 regions, with squads, backfill and cross-play pools.</p>
+              <div class="project__kpis"><div><strong>18s</strong><span>median queue</span></div><div><strong>1.2M</strong><span>peak CCU</span></div></div>
+              <ul class="tags"><li>Go</li><li>Open Match</li><li>Redis</li><li>gRPC</li></ul>
+            </div>
+          </article>
+          <article class="project project--war" data-cursor="view">
+            <div class="project__media"><img src="/img/mission-recon.jpg" alt="Attack helicopter in flight" loading="lazy" /><span class="project__status">✓ Mission complete</span><span class="project__genre">Telemetry</span></div>
+            <div class="project__body">
+              <div class="project__meta"><span>Mission 05</span><span>Telemetry</span></div>
+              <h3>Recon — Battlefield Analytics</h3>
+              <p>Kill heatmaps, weapon balance and anti-cheat signals from millions of matches, in near real time.</p>
+              <div class="project__kpis"><div><strong>2B</strong><span>events / day</span></div><div><strong>&lt;5s</strong><span>to dashboard</span></div></div>
+              <ul class="tags"><li>Rust</li><li>Kafka</li><li>ClickHouse</li><li>Grafana</li></ul>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Service record ===== -->
+    <section class="section experience" id="experience">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow"><b>07</b>Service record</p>
+          <h2 class="section-title" data-split>Every rank, from gameplay to backend.</h2>
+        </div>
+        <div class="timeline" id="timeline">
+          <div class="timeline__line"><span id="timeline-progress"></span></div>
+          <div class="tl-item" data-reveal>
+            <div class="tl-item__dot"></div>
+            <div class="tl-item__date">2022 — Present</div>
+            <div class="tl-item__card panel">
+              <span class="rank"><i></i><i></i><i></i>Rank III</span>
+              <h3>Senior Game Backend Engineer</h3>
+              <p class="tl-item__company">Studio Name · Remote</p>
+              <p>Lead on multiplayer services for a cross-platform title: dedicated server fleet, matchmaking, progression and live-ops economy.</p>
+            </div>
+          </div>
+          <div class="tl-item" data-reveal>
+            <div class="tl-item__dot"></div>
+            <div class="tl-item__date">2019 — 2022</div>
+            <div class="tl-item__card panel">
+              <span class="rank"><i></i><i></i>Rank II</span>
+              <h3>Gameplay &amp; Network Programmer</h3>
+              <p class="tl-item__company">Studio Name · City</p>
+              <p>Built replication, prediction and lag compensation in Unreal; owned core combat systems across three shipped titles.</p>
+            </div>
+          </div>
+          <div class="tl-item" data-reveal>
+            <div class="tl-item__dot"></div>
+            <div class="tl-item__date">2016 — 2019</div>
+            <div class="tl-item__card panel">
+              <span class="rank"><i></i>Rank I</span>
+              <h3>Game Developer</h3>
+              <p class="tl-item__company">Studio Name · City</p>
+              <p>Unity gameplay systems, editor tooling and backend integrations for mobile and PC games.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Comms ===== -->
+    <section class="contact" id="contact">
+      <div class="contact__bg"><img src="https://images.unsplash.com/photo-1550439062-609e1531270e?w=2000&q=80&auto=format&fit=crop" alt="" loading="lazy" /></div>
+      <div class="container contact__inner">
+        <p class="eyebrow"><b>08</b>Open comms</p>
+        <h2 class="contact__title" data-split>Ready up. <span class="gradient-text">Join the squad.</span></h2>
+        <p class="contact__lead" data-reveal>Looking for a gameplay or multiplayer backend engineer for your next launch? Send the invite — I'm in the lobby.</p>
+        <div class="contact__actions" data-reveal>
+          <button class="btn btn--big magnetic" id="copy-email" data-email="hello@yourdomain.com" data-cursor>
+            <span>hello@yourdomain.com</span>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          </button>
+          <div class="socials">
+            <a href="https://github.com/" target="_blank" rel="noopener" class="magnetic" data-cursor aria-label="GitHub"><svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3.1-.4 6.4-1.5 6.4-6.9A5.4 5.4 0 0 0 20 4.8 5 5 0 0 0 19.9 1S18.7.7 16 2.5a13.4 13.4 0 0 0-7 0C6.3.7 5.1 1 5.1 1A5 5 0 0 0 5 4.8a5.4 5.4 0 0 0-1.5 3.8c0 5.4 3.3 6.5 6.4 6.9a3.4 3.4 0 0 0-.9 2.6V22"/></svg></a>
+            <a href="https://linkedin.com/" target="_blank" rel="noopener" class="magnetic" data-cursor aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg></a>
+            <a href="https://itch.io/" target="_blank" rel="noopener" class="magnetic" data-cursor aria-label="Games portfolio"><svg viewBox="0 0 24 24"><path d="M6 11h4M8 9v4"/><path d="M15 12h.01M18 10h.01"/><path d="M17.3 5H6.7a4 4 0 0 0-3.9 3.4L2 15a3 3 0 0 0 5.2 2.4L9 15h6l1.8 2.4A3 3 0 0 0 22 15l-.8-6.6A4 4 0 0 0 17.3 5z"/></svg></a>
+          </div>
+        </div>
+      </div>
+      <footer class="footer container">
+        <span>© <span id="year"></span> Marcus McNeal</span>
+        <span>Built with Three.js · GSAP · Lenis</span>
+        <span>Local time <span id="clock">--:--</span></span>
+      </footer>
+      <div class="toast" id="toast">✓ Email copied — achievement unlocked</div>
+    </section>
+  </main>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

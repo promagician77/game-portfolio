@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brand Options — Marcus McNeal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600&family=Inter:wght@400;500&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg: #07080a; --panel: #111317; --line: rgba(255,255,255,.08); --text: #eceef1; --muted: #8b929b; --accent: #ff6b1a; --accent-2: #ffb02e; --ok: #5dff9e; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: Inter, system-ui, sans-serif; padding: 48px 16px 80px; }
+    .wrap { max-width: 1180px; margin: 0 auto; }
+    h1 { font-family: Rajdhani, sans-serif; font-weight: 700; font-size: clamp(36px, 6vw, 64px); text-transform: uppercase; line-height: .95; }
+    .kicker { font-family: 'Chakra Petch', monospace; font-size: 12px; letter-spacing: .24em; text-transform: uppercase; color: var(--accent-2); margin-bottom: 12px; }
+    .lead { color: var(--muted); margin: 14px 0 40px; max-width: 640px; }
+    h2 { font-family: Rajdhani, sans-serif; font-size: 28px; text-transform: uppercase; letter-spacing: .04em; margin: 56px 0 18px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    .card { position: relative; background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); padding: 26px; clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%); }
+    .card.rec { box-shadow: inset 0 0 0 1px rgba(255,107,26,.6); }
+    .badge { position: absolute; top: 18px; right: 22px; font-family: 'Chakra Petch', monospace; font-size: 10px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: #000; background: var(--accent); padding: 2px 8px; }
+    .mark { display: grid; place-items: center; height: 180px; background: radial-gradient(circle at 50% 50%, rgba(255,107,26,.12), transparent 65%); margin-bottom: 18px; }
+    .mark img { width: 132px; height: 132px; filter: drop-shadow(0 0 22px rgba(255,107,26,.45)); }
+    .card h3 { font-family: Rajdhani, sans-serif; font-size: 22px; text-transform: uppercase; letter-spacing: .05em; }
+    .card p { color: var(--muted); font-size: 14px; margin: 6px 0 18px; }
+    .lockup { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #0b0c0f; box-shadow: inset 0 0 0 1px var(--line); }
+    .lockup img { width: 34px; height: 34px; }
+    .lockup b { display: block; font-family: Rajdhani, sans-serif; font-size: 21px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; line-height: 1; }
+    .lockup small { display: block; margin-top: 3px; font-family: 'Chakra Petch', monospace; font-size: 9.5px; letter-spacing: .22em; text-transform: uppercase; color: var(--accent-2); }
+    .sizes { display: flex; align-items: center; gap: 14px; margin-top: 14px; font-family: 'Chakra Petch', monospace; font-size: 10px; color: var(--muted); letter-spacing: .1em; }
+    .titles { display: grid; gap: 10px; }
+    .title { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 18px 22px; background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); }
+    .title.rec { box-shadow: inset 0 0 0 1px rgba(255,107,26,.6); }
+    .title strong { font-family: Rajdhani, sans-serif; font-size: clamp(20px, 3vw, 28px); text-transform: uppercase; letter-spacing: .03em; line-height: 1.05; }
+    .title strong em { font-style: normal; color: var(--accent-2); }
+    .title > div > span { display: block; color: var(--muted); font-size: 13px; margin-top: 4px; }
+    .title .badge { position: static; }
+    code { font-family: 'Chakra Petch', monospace; color: var(--accent-2); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="kicker">Marcus McNeal // Brand options</p>
+    <h1>Logo &amp; title options</h1>
+    <p class="lead">Four original MM monograms in the site's tactical style, each shown as a mark, as the nav lockup, and at favicon size. Option A is applied to the site now; tell Claude which one you prefer to switch.</p>
+
+    <h2>Logo marks</h2>
+    <div class="grid">
+      <div class="card rec">
+        <span class="badge">Applied</span>
+        <div class="mark"><img src="a-vanguard-crest.svg" alt="Vanguard Crest logo" /></div>
+        <h3>A · Vanguard Crest</h3>
+        <p>A military shield with an MM ligature and a rank chevron. It reads as "senior": authority and rank, a classic shooter crest.</p>
+        <div class="lockup"><img src="a-vanguard-crest.svg" alt="" /><div><b>McNeal</b><small>Senior Game Engineer</small></div></div>
+        <div class="sizes"><img src="a-vanguard-crest.svg" width="32" height="32" alt="" /><img src="a-vanguard-crest.svg" width="16" height="16" alt="" /> 32 / 16 px</div>
+      </div>
+      <div class="card">
+        <div class="mark"><img src="b-reticle.svg" alt="Reticle logo" /></div>
+        <h3>B · Reticle</h3>
+        <p>The MM monogram inside a scope reticle. It's directly fighting-themed and very legible small, with a precision/netcode feel.</p>
+        <div class="lockup"><img src="b-reticle.svg" alt="" /><div><b>McNeal</b><small>Senior Game Engineer</small></div></div>
+        <div class="sizes"><img src="b-reticle.svg" width="32" height="32" alt="" /><img src="b-reticle.svg" width="16" height="16" alt="" /> 32 / 16 px</div>
+      </div>
+      <div class="card">
+        <div class="mark"><img src="c-hex-core.svg" alt="Hex Core logo" /></div>
+        <h3>C · Hex Core</h3>
+        <p>A solid hexagon with MM cut out of it. The hex is both a game tile and a server node, so it says "game + backend" in one shape.</p>
+        <div class="lockup"><img src="c-hex-core.svg" alt="" /><div><b>McNeal</b><small>Senior Game Engineer</small></div></div>
+        <div class="sizes"><img src="c-hex-core.svg" width="32" height="32" alt="" /><img src="c-hex-core.svg" width="16" height="16" alt="" /> 32 / 16 px</div>
+      </div>
+      <div class="card">
+        <div class="mark"><img src="d-winged-badge.svg" alt="Winged Badge logo" /></div>
+        <h3>D · Winged Badge</h3>
+        <p>A diamond plate with chevron wings, in the style of an esports team or elite unit badge. The most aggressive and "competitive" option.</p>
+        <div class="lockup"><img src="d-winged-badge.svg" alt="" /><div><b>McNeal</b><small>Senior Game Engineer</small></div></div>
+        <div class="sizes"><img src="d-winged-badge.svg" width="32" height="32" alt="" /><img src="d-winged-badge.svg" width="16" height="16" alt="" /> 32 / 16 px</div>
+      </div>
+    </div>
+
+    <h2>Professional title</h2>
+    <div class="titles">
+      <div class="title rec"><div><strong>Senior Game Engineer <em>— Gameplay &amp; Online Systems</em></strong><span>Standard studio title, and it covers both halves of your work. Recruiters search for "Senior Game Engineer".</span></div><span class="badge">Applied</span></div>
+      <div class="title"><div><strong>Senior Gameplay &amp; Multiplayer Engineer</strong><span>Puts multiplayer up front; strong for shooter / competitive studios.</span></div></div>
+      <div class="title"><div><strong>Senior Game Engineer <em>— Netcode, Servers &amp; Live Ops</em></strong><span>Leans backend; best if you want online-services / platform roles.</span></div></div>
+      <div class="title"><div><strong>Senior Online Systems Engineer <em>(Games)</em></strong><span>Most backend-focused; matches "Online / Services Engineer" job postings.</span></div></div>
+    </div>
+  </div>
+</body>
+</html>
